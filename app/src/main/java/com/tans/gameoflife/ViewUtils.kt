@@ -1,6 +1,7 @@
 package com.tans.gameoflife
 
 import android.view.View
+import android.widget.SeekBar
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlin.coroutines.resume
@@ -19,5 +20,24 @@ suspend fun View.clickCallToSuspend(): Unit {
             continuation.resume(Unit)
             this.setOnClickListener(null)
         }
+    }
+}
+
+fun SeekBar.progressChange(): Flow<Int> = flow {
+    while (true) {
+        emit(progressChangeCallToSuspend())
+    }
+}
+
+suspend fun SeekBar.progressChangeCallToSuspend(): Int {
+    return suspendCoroutine<Int> { cont ->
+        this.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                cont.resume(progress)
+                this@progressChangeCallToSuspend.setOnSeekBarChangeListener(null)
+            }
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {}
+        })
     }
 }

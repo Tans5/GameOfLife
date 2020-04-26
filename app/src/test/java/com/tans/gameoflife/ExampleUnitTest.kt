@@ -1,8 +1,7 @@
 package com.tans.gameoflife
 
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.channels.firstOrNull
-import kotlinx.coroutines.channels.produce
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.channels.*
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -17,25 +16,11 @@ import org.junit.Assert.*
  */
 class ExampleUnitTest {
 
-
     @Test
     fun addition_isCorrect() = runBlocking<Unit> {
-        val channel: Channel<Boolean> = Channel(Channel.CONFLATED)
-
-        channel.send(false)
-
-        launch {
-            channel.receiveAsFlow()
-                .collect {
-                    println("receive1: $it")
-                }
-        }
-
-        launch {
-            channel.receiveAsFlow()
-                .collect {
-                    println("receive2: $it")
-                }
-        }
+        val channel = BroadcastChannel<Int>(Channel.CONFLATED)
+        channel.send(1)
+        println("Received1: ${channel.asFlow().first()}")
+        println("Received2: ${channel.asFlow().first()}")
     }
 }

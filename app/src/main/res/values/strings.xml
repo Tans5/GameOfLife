@@ -1,5 +1,10 @@
 <resources>
     <string name="app_name">Game Of Life</string>
+    <string name="settings">Settings</string>
     <string name="start">Start</string>
     <string name="pause">Pause</string>
+    <string name="speed">Speed:</string>
+    <string name="init_type">Init game type: Random</string>
+    <string name="size">Map size:</string>
+    <string name="probability_of_each_cell_alive">The probability of each cell alive(For Random Type Init Life).</string>
 </resources>
