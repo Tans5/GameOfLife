@@ -1,6 +1,10 @@
 package com.tans.gameoflife
 
 import android.content.Intent
+import com.tans.gameoflife.game.DefaultRule
+import com.tans.gameoflife.game.LifeModel
+import com.tans.gameoflife.game.Size
+import com.tans.gameoflife.game.randomLife
 import com.tans.gameoflife.settings.globalSettingsState
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.*
@@ -17,13 +21,17 @@ class MainActivity : BaseActivity() {
         launch {
             // Init default state.
             state.isPaused.send(true)
-            state.count.send(0)
 
+            val defaultLife = Size(50, 50).randomLife(20, System.currentTimeMillis())
+            game_view.lifeModel = defaultLife
+            state.life.send(defaultLife)
             launch {
                 while (!state.isPaused.asFlow().filter { !it }.first()) {
-                    val count = state.count.asFlow().first()
-                    delay(1000)
-                    state.count.send(count + 1)
+                    delay(globalSettingsState.speed.asFlow().first())
+                    val oldLife = state.life.asFlow().first()
+                    val newLife = DefaultRule(oldLife)
+                    state.life.send(newLife)
+                    game_view.lifeModel = newLife
                 }
             }
 
@@ -55,11 +63,6 @@ class MainActivity : BaseActivity() {
                     }
                 }
 
-            state.count.asFlow()
-                .collectInCoroutine(this) {
-                    count_tv.text = it.toString()
-                }
-
             globalSettingsState.size.asFlow()
                 .distinctUntilChanged()
                 .collectInCoroutine(this) {
@@ -89,5 +92,5 @@ class MainActivity : BaseActivity() {
 
 data class MainActivityState(
     val isPaused: BroadcastChannel<Boolean> = BroadcastChannel(Channel.CONFLATED),
-    val count: BroadcastChannel<Int> = BroadcastChannel(Channel.CONFLATED)
+    val life: BroadcastChannel<LifeModel> = BroadcastChannel(Channel.CONFLATED)
 )

@@ -21,7 +21,7 @@ class Application : Application(), CoroutineScope {
         launch {
             globalSettingsState.size.send(Size(50, 50))
             globalSettingsState.speed.send(100)
-            globalSettingsState.type.send(GameInitType.Random(0.3f))
+            globalSettingsState.type.send(GameInitType.Random(10))
         }
     }
 

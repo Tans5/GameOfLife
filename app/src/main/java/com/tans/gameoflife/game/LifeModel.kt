@@ -1,6 +1,6 @@
 package com.tans.gameoflife.game
 
-data class LifeModel(val life: ByteArray,
+data class LifeModel(val life: BooleanArray,
                      val mapSize: Size) {
 
     override fun equals(other: Any?): Boolean {

@@ -21,7 +21,7 @@ class SettingsActivity : BaseActivity() {
         launch {
             map_size_sb.progress = globalSettingsState.size.asFlow().first().sizeToProgress()
             speed_sb.progress = globalSettingsState.speed.asFlow().first().speedToProgress()
-            probability_sb.progress = globalSettingsState.type.asFlow().map { (it as? GameInitType.Random)?.eachCellProbability ?: 0f }
+            probability_sb.progress = globalSettingsState.type.asFlow().map { (it as? GameInitType.Random)?.eachCellProbability ?: 0 }
                 .first().probabilityToProgress()
 
             map_size_sb.progressChange()
@@ -51,11 +51,11 @@ class SettingsActivity : BaseActivity() {
 
             globalSettingsState.type.asFlow()
                 .map {
-                    (it as? GameInitType.Random)?.eachCellProbability ?: 0f
+                    (it as? GameInitType.Random)?.eachCellProbability ?: 0
                 }
                 // .distinctUntilChanged()
                 .collectInCoroutine(this) {
-                    probability_result_tv.text = it.toBigDecimal().setScale(2, RoundingMode.HALF_UP).toString()
+                    probability_result_tv.text = it.toString()
                 }
         }
     }
@@ -90,16 +90,16 @@ class SettingsActivity : BaseActivity() {
             (SPEED_MIN.toFloat() - ((SPEED_MIN - SPEED_MAX) * this).toFloat() / 100f + 0.5f).toLong()
         }
 
-        fun Float.probabilityToProgress(): Int = if (this !in CELL_ALIVE_PROBABILITY_MIN..CELL_ALIVE_PROBABILITY_MAX) {
+        fun Int.probabilityToProgress(): Int = if (this !in CELL_ALIVE_PROBABILITY_MIN..CELL_ALIVE_PROBABILITY_MAX) {
             error("Wrong Probability: $this")
         } else {
             (((this - CELL_ALIVE_PROBABILITY_MIN) / (CELL_ALIVE_PROBABILITY_MAX - CELL_ALIVE_PROBABILITY_MIN)) * 100 + 0.5f).toInt()
         }
 
-        fun Int.progressToProbability(): Float = if (this !in 0..100) {
+        fun Int.progressToProbability(): Int = if (this !in 0..100) {
             error("Wrong Progress: $this")
         } else {
-            (this.toFloat() / 100f) * (CELL_ALIVE_PROBABILITY_MAX - CELL_ALIVE_PROBABILITY_MIN) + CELL_ALIVE_PROBABILITY_MIN
+            ((this.toFloat() / 100f) * (CELL_ALIVE_PROBABILITY_MAX - CELL_ALIVE_PROBABILITY_MIN) + CELL_ALIVE_PROBABILITY_MIN + 0.5f).toInt()
         }
     }
 

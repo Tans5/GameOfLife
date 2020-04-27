@@ -1,15 +1,16 @@
 package com.tans.gameoflife.settings
 
 import androidx.annotation.FloatRange
+import androidx.annotation.IntRange
 import com.tans.gameoflife.game.Size
 import kotlinx.coroutines.channels.BroadcastChannel
 import kotlinx.coroutines.channels.Channel
 import java.math.RoundingMode
 
 sealed class GameInitType {
-    data class Random(@FloatRange(from = 0.0, to = 1.0) val eachCellProbability: Float) : GameInitType() {
+    data class Random(@IntRange(from = 0L, to = 100L) val eachCellProbability: Int) : GameInitType() {
         override fun toString(): String {
-            return "Random, Probability: ${eachCellProbability.toBigDecimal().setScale(2, RoundingMode.HALF_UP)}"
+            return "Random, Probability: $eachCellProbability"
         }
     }
     data class Local(val file: String) : GameInitType()
@@ -28,9 +29,9 @@ data class SettingsState(
 
 val globalSettingsState = SettingsState()
 
-const val SIZE_MAX: Int = 900
-const val SIZE_MIN: Int = 50
+const val SIZE_MAX: Int = 200
+const val SIZE_MIN: Int = 10
 const val SPEED_MAX: Long = 100
 const val SPEED_MIN: Long = 1000
-const val CELL_ALIVE_PROBABILITY_MAX: Float = 0.9f
-const val CELL_ALIVE_PROBABILITY_MIN: Float = 0.1f
+const val CELL_ALIVE_PROBABILITY_MAX: Int = 100
+const val CELL_ALIVE_PROBABILITY_MIN: Int = 0

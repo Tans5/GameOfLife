@@ -27,11 +27,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <View
+            <com.tans.gameoflife.game.GameMapView
                 android:id="@+id/game_view"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
-                android:background="@color/colorAccent"
                 app:layout_constraintDimensionRatio="1 : 1"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -62,22 +61,12 @@
                 app:layout_constraintTop_toBottomOf="@id/game_view" />
 
             <TextView
-                android:id="@+id/count_tv"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="10dp"
-                android:layout_marginTop="10dp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/start_pause_bt"
-                tools:text="9999"/>
-
-            <TextView
                 android:id="@+id/map_size_tv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="10dp"
                 android:layout_marginTop="10dp"
-                app:layout_constraintStart_toEndOf="@id/count_tv"
+                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/start_pause_bt"
                 tools:text="Size: 90 * 90"/>
 
