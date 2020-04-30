@@ -1,8 +1,9 @@
 package com.tans.gameoflife
 
 import android.app.Application
+import com.tans.gameoflife.game.DefaultRule
 import com.tans.gameoflife.game.Size
-import com.tans.gameoflife.settings.GameInitType
+import com.tans.gameoflife.settings.GameLaunchType
 import com.tans.gameoflife.settings.globalSettingsState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -19,9 +20,8 @@ class Application : Application(), CoroutineScope {
 
         // Init Settings
         launch {
-            globalSettingsState.size.send(Size(50, 50))
-            globalSettingsState.speed.send(100)
-            globalSettingsState.type.send(GameInitType.Random(10))
+            globalSettingsState.gameLaunchType.send(GameLaunchType.Random(10, rule = DefaultRule, mapSize = Size(50, 50), speed = 100))
+            globalSettingsState.showBorder.send(false)
         }
     }
 

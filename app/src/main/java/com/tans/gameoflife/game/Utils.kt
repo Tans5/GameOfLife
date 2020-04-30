@@ -21,12 +21,19 @@ fun Size.getArrayIndex(coordinate: Pair<Int, Int>): Int {
 }
 
 fun Size.randomLife(@IntRange(from = 0L, to = 100L) probability: Int, seed: Long)
-        : LifeModel = LifeModel(
-    life = BooleanArray(width * height) {
-        probability >= Random(seed = seed - it * probability).nextInt(1 .. 100)
-    },
-    mapSize = this
-)
+        : LifeModel {
+    return LifeModel(
+        life = sequence<Int> {
+            repeat(width * height) { i ->
+                val isAlive = probability > Random(seed - probability * i * 100).nextInt(1 .. 100)
+                if (isAlive) {
+                    yield(i)
+                }
+            }
+        }.toList().toIntArray(),
+        mapSize = this
+    )
+}
 
 fun Size.getRoundIndex(me: Int): IntArray {
     return if (me !in 0 until width * height) {
@@ -47,3 +54,5 @@ fun Size.getRoundIndex(me: Int): IntArray {
             .toIntArray()
     }
 }
+
+fun Size.getRoundAliveCount(me: Int, life: IntArray): Int = this.getRoundIndex(me).count { life.contains(it) }

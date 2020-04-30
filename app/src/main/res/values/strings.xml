@@ -6,5 +6,8 @@
     <string name="speed">Speed:</string>
     <string name="init_type">Init game type: Random</string>
     <string name="size">Map size:</string>
-    <string name="probability_of_each_cell_alive">The probability of each cell alive(For Random Type Init Life).</string>
+    <string name="probability_of_each_cell_alive">The probability of each cell alive.</string>
+    <string name="show_map_border">Show map border:</string>
+    <string name="map_size_value">%d * %d</string>
+    <string name="speed_value">%dms</string>
 </resources>

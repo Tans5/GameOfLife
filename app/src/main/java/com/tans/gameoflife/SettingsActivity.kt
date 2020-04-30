@@ -5,7 +5,6 @@ import com.tans.gameoflife.settings.*
 import kotlinx.android.synthetic.main.activity_settings.*
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import java.math.RoundingMode
 import kotlin.math.min
 
 class SettingsActivity : BaseActivity() {
@@ -19,41 +18,67 @@ class SettingsActivity : BaseActivity() {
     override fun initViews() {
 
         launch {
-            map_size_sb.progress = globalSettingsState.size.asFlow().first().sizeToProgress()
-            speed_sb.progress = globalSettingsState.speed.asFlow().first().speedToProgress()
-            probability_sb.progress = globalSettingsState.type.asFlow().map { (it as? GameInitType.Random)?.eachCellProbability ?: 0 }
+            map_size_sb.progress = globalSettingsState.gameLaunchType.asFlow().map { it.mapSize }.first().sizeToProgress()
+            speed_sb.progress = globalSettingsState.gameLaunchType.asFlow().map { it.speed }.first().speedToProgress()
+            // TODO: Now GameLaunchType only support Random
+            probability_sb.progress = globalSettingsState.gameLaunchType.asFlow().map { (it as? GameLaunchType.Random)?.eachCellProbability ?: 0 }
                 .first().probabilityToProgress()
+
+            show_border_switch.isChecked = globalSettingsState.showBorder.asFlow().first()
 
             map_size_sb.progressChange()
                 .collectInCoroutine(this) { progress ->
-                    globalSettingsState.size.send(progress.progressToSize())
+                    when (val oldLaunchType = globalSettingsState.gameLaunchType.asFlow().first()) {
+                        is GameLaunchType.Random -> {
+                            val newLaunchType = oldLaunchType.copy(mapSize = progress.progressToSize())
+                            globalSettingsState.gameLaunchType.send(newLaunchType)
+                        }
+                    }
+
                 }
 
             speed_sb.progressChange()
                 .collectInCoroutine(this) { progress ->
-                    globalSettingsState.speed.send(progress.progressToSpeed())
+                    when (val oldLaunchType = globalSettingsState.gameLaunchType.asFlow().first()) {
+                        is GameLaunchType.Random -> {
+                            val newLaunchType = oldLaunchType.copy(speed = progress.progressToSpeed())
+                            globalSettingsState.gameLaunchType.send(newLaunchType)
+                        }
+                    }
                 }
 
             probability_sb.progressChange()
                 .collectInCoroutine(this) { progress ->
-                    globalSettingsState.type.send(GameInitType.Random(progress.progressToProbability()))
+
+                    when (val oldLaunchType = globalSettingsState.gameLaunchType.asFlow().first()) {
+                        is GameLaunchType.Random -> {
+                            val newLaunchType = oldLaunchType.copy(eachCellProbability = progress.progressToProbability())
+                            globalSettingsState.gameLaunchType.send(newLaunchType)
+                        }
+                    }
                 }
 
-            globalSettingsState.size.asFlow()
+            show_border_switch.checkChanges()
                 .distinctUntilChanged()
-                .collectInCoroutine(this) { map_size_result_tv.text = it.toString() }
+                .collectInCoroutine(this) { globalSettingsState.showBorder.send(it) }
 
-            globalSettingsState.speed.asFlow()
+            globalSettingsState.gameLaunchType.asFlow()
+                .map { it.mapSize }
+                .distinctUntilChanged()
+                .collectInCoroutine(this) { map_size_result_tv.text = getString(R.string.map_size_value, it.width, it.height) }
+
+            globalSettingsState.gameLaunchType.asFlow()
+                .map { it.speed }
                 .distinctUntilChanged()
                 .collectInCoroutine(this) {
-                    speed_result_tv.text = "${it}ms"
+                    speed_result_tv.text = getString(R.string.speed_value, it)
                 }
 
-            globalSettingsState.type.asFlow()
+            globalSettingsState.gameLaunchType.asFlow()
                 .map {
-                    (it as? GameInitType.Random)?.eachCellProbability ?: 0
+                    (it as? GameLaunchType.Random)?.eachCellProbability ?: 0
                 }
-                // .distinctUntilChanged()
+                .distinctUntilChanged()
                 .collectInCoroutine(this) {
                     probability_result_tv.text = it.toString()
                 }

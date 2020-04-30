@@ -5,6 +5,7 @@ import com.tans.gameoflife.game.DefaultRule
 import com.tans.gameoflife.game.LifeModel
 import com.tans.gameoflife.game.Size
 import com.tans.gameoflife.game.randomLife
+import com.tans.gameoflife.settings.GameLaunchType
 import com.tans.gameoflife.settings.globalSettingsState
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.*
@@ -21,17 +22,20 @@ class MainActivity : BaseActivity() {
         launch {
             // Init default state.
             state.isPaused.send(true)
+            val launchType = globalSettingsState.gameLaunchType.asFlow().first()
+            when (launchType) {
+                is GameLaunchType.Random -> {
+                    state.life.send(launchType.refreshInitLifeModel(System.currentTimeMillis()))
+                }
+            }
 
-            val defaultLife = Size(50, 50).randomLife(20, System.currentTimeMillis())
-            game_view.lifeModel = defaultLife
-            state.life.send(defaultLife)
             launch {
                 while (!state.isPaused.asFlow().filter { !it }.first()) {
-                    delay(globalSettingsState.speed.asFlow().first())
+                    val launchTypeLocal = globalSettingsState.gameLaunchType.asFlow().first()
+                    delay(launchTypeLocal.speed)
                     val oldLife = state.life.asFlow().first()
-                    val newLife = DefaultRule(oldLife)
+                    val newLife = launchType.rule(oldLife)
                     state.life.send(newLife)
-                    game_view.lifeModel = newLife
                 }
             }
 
@@ -63,22 +67,35 @@ class MainActivity : BaseActivity() {
                     }
                 }
 
-            globalSettingsState.size.asFlow()
+            state.life.asFlow()
                 .distinctUntilChanged()
-                .collectInCoroutine(this) {
-                    map_size_tv.text = "Map Size: $it"
+                .collectInCoroutine(this) { life -> game_view.lifeModel = life }
+
+            globalSettingsState.gameLaunchType.asFlow()
+                .distinctUntilChanged()
+                .collectInCoroutine(this) { type ->
+                    state.isPaused.send(true)
+                    map_size_tv.text = "Map Size: ${type.mapSize}"
                 }
 
-            globalSettingsState.type.asFlow()
+            globalSettingsState.gameLaunchType.asFlow()
                 .distinctUntilChanged()
                 .collectInCoroutine(this) {
                     type_tv.text = it.toString()
                 }
 
-            globalSettingsState.speed.asFlow()
+            globalSettingsState.gameLaunchType.asFlow()
+                .map { it.speed }
                 .distinctUntilChanged()
                 .collectInCoroutine(this) {
                     speed_tv.text = "Speed: ${it}ms"
+                }
+
+            globalSettingsState.showBorder.asFlow()
+                .distinctUntilChanged()
+                .collectInCoroutine(this) {
+                    game_view.drawBorder = it
+                    state.isPaused.send(true)
                 }
         }
     }

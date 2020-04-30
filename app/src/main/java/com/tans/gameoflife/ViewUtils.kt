@@ -1,6 +1,7 @@
 package com.tans.gameoflife
 
 import android.view.View
+import android.widget.CompoundButton
 import android.widget.SeekBar
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -39,5 +40,18 @@ suspend fun SeekBar.progressChangeCallToSuspend(): Int {
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
             override fun onStopTrackingTouch(seekBar: SeekBar?) {}
         })
+    }
+}
+
+fun CompoundButton.checkChanges(): Flow<Boolean> = flow {
+    while (true) { emit(checkChangeCallToSuspend()) }
+}
+
+suspend fun CompoundButton.checkChangeCallToSuspend(): Boolean {
+    return suspendCoroutine { cont ->
+        this.setOnCheckedChangeListener { _, isChecked ->
+            cont.resume(isChecked)
+            this.setOnCheckedChangeListener(null)
+        }
     }
 }

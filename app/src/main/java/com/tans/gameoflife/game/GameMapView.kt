@@ -65,8 +65,7 @@ class GameMapView : View {
         val life = lifeModel?.life
         if (canvas != null
             && mapSize != null
-            && life != null
-            && life.size == mapSize.height * lifeModel.mapSize.width) {
+            && life != null) {
             val mapScreenWidth = measuredWidth.let { screenWidth ->
                 screenWidth - (screenWidth - borderSize) % mapSize.width
             }
@@ -93,12 +92,11 @@ class GameMapView : View {
                     }
                 }
 
-                lifeModel.life.withIndex().forEach { (i, isAlive) ->
-                    if (isAlive) {
-                        val (x, y) = mapSize.getCoordinate(i)
-                        canvas.drawRect((x * (cellSize + borderSize) + borderSize).toFloat(), (y * (cellSize + borderSize) + borderSize).toFloat(),
+                lifeModel.life.forEach { aliveIndex ->
+                    val (x, y) = mapSize.getCoordinate(aliveIndex)
+                    canvas.drawRect((x * (cellSize + borderSize) + borderSize).toFloat(), (y * (cellSize + borderSize) + borderSize).toFloat(),
                             (x * (cellSize + borderSize) + cellSize).toFloat(), (y * (cellSize + borderSize)  + cellSize).toFloat(), cellPaint)
-                    }
+
                 }
 
             }
