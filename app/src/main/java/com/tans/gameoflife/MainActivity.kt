@@ -1,6 +1,7 @@
 package com.tans.gameoflife
 
 import android.content.Intent
+import androidx.core.view.ViewCompat
 import com.tans.gameoflife.game.DefaultRule
 import com.tans.gameoflife.game.LifeModel
 import com.tans.gameoflife.game.Size
@@ -29,14 +30,12 @@ class MainActivity : BaseActivity() {
                 }
                 else -> null
             }
-
-            launch {
-                while (!state.isPaused.asFlow().filter { !it }.first()) {
+            game_view.lifeModel = lifeModel
+            launch(Dispatchers.IO) {
+                while (!state.isPaused.asFlow().filter { !it }.first() && lifeModel != null) {
                     val launchTypeLocal = globalSettingsState.gameLaunchType.asFlow().first()
-                    delay(launchTypeLocal.speed)
-                    if (lifeModel != null) {
-                        launchTypeLocal.rule(lifeModel)
-                    }
+                    launchTypeLocal.rule(lifeModel)
+                    game_view.postInvalidateOnAnimation(launchTypeLocal.speed)
                 }
             }
 

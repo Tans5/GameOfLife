@@ -11,7 +11,7 @@ import kotlin.math.min
 
 class GameMapView : View {
 
-    var lifeModel: LifeModel? = null
+    var lifeModel: LifeModel2? = null
     set(value) {
         field = value
         ViewCompat.postInvalidateOnAnimation(this)
@@ -92,11 +92,18 @@ class GameMapView : View {
                     }
                 }
 
-                lifeModel.life.forEach { aliveIndex ->
-                    val (x, y) = mapSize.getCoordinate(aliveIndex)
-                    canvas.drawRect((x * (cellSize + borderSize) + borderSize).toFloat(), (y * (cellSize + borderSize) + borderSize).toFloat(),
-                            (x * (cellSize + borderSize) + cellSize).toFloat(), (y * (cellSize + borderSize)  + cellSize).toFloat(), cellPaint)
-
+                synchronized(lifeModel) {
+                    repeat(life.size) { index ->
+                        val alive = life[index].isAlive
+                        if (alive) {
+                            val x = life[index].x
+                            val y = life[index].y
+                            val startX = (x * (cellSize + borderSize) + borderSize).toFloat()
+                            val startY = (y * (cellSize + borderSize) + borderSize).toFloat()
+                            canvas.drawRect(startX, startY,
+                                startX + cellSize, startY + cellSize, cellPaint)
+                        }
+                    }
                 }
 
             }

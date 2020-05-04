@@ -25,7 +25,7 @@ fun Size.randomLife(@IntRange(from = 0L, to = 100L) probability: Int, seed: Long
     return LifeModel(
         life = sequence<Int> {
             repeat(width * height) { i ->
-                val isAlive = probability > Random(seed - probability * i * 100).nextInt(1 .. 100)
+                val isAlive = probability > Random(seed - probability * i * 100).nextInt(1..100)
                 if (isAlive) {
                     yield(i)
                 }
@@ -35,11 +35,11 @@ fun Size.randomLife(@IntRange(from = 0L, to = 100L) probability: Int, seed: Long
     )
 }
 
-fun Size.randomLife2(@IntRange(from = 0L, to = 100L) probability: Int, seed: Long) : LifeModel2 {
+fun Size.randomLife2(@IntRange(from = 0L, to = 100L) probability: Int, seed: Long): LifeModel2 {
     return LifeModel2(
         mapSize = this,
         life = MutableList(width * height) { index ->
-            val isAlive = probability > Random(seed - probability * index * 100).nextInt(1 .. 100)
+            val isAlive = probability > Random(seed - probability * index * 100).nextInt(1..100)
             val x = index % width
             val y = index / width
             Cell(x = x, y = y, isAlive = isAlive)
@@ -67,109 +67,148 @@ fun Size.getRoundIndex(me: Int): IntArray {
     }
 }
 
-fun Size.getRoundAliveCount(me: Int, life: IntArray): Int = this.getRoundIndex(me).count { life.contains(it) }
+fun Size.getRoundAliveCount(me: Int, life: IntArray): Int =
+    this.getRoundIndex(me).count { life.contains(it) }
+
+sealed class RoundPoint {
+    abstract fun index(meIndex: Int, width: Int, height: Int): Int
+
+    object Point0 : RoundPoint() {
+        override fun index(meIndex: Int, width: Int, height: Int): Int = meIndex - width - 1
+    }
+
+    object Point1 : RoundPoint() {
+        override fun index(meIndex: Int, width: Int, height: Int): Int = meIndex - width
+    }
+
+    object Point2 : RoundPoint() {
+        override fun index(meIndex: Int, width: Int, height: Int): Int = meIndex - width + 1
+    }
+
+    object Point3 : RoundPoint() {
+        override fun index(meIndex: Int, width: Int, height: Int): Int = meIndex + 1
+    }
+
+    object Point4 : RoundPoint() {
+        override fun index(meIndex: Int, width: Int, height: Int): Int = meIndex + width + 1
+    }
+
+    object Point5 : RoundPoint() {
+        override fun index(meIndex: Int, width: Int, height: Int): Int = meIndex + width
+    }
+
+    object Point6 : RoundPoint() {
+        override fun index(meIndex: Int, width: Int, height: Int): Int = meIndex + width - 1
+    }
+
+    object Point7 : RoundPoint() {
+        override fun index(meIndex: Int, width: Int, height: Int): Int = meIndex - 1
+    }
+
+    object Invalid : RoundPoint() { override fun index(meIndex: Int, width: Int, height: Int): Int = INVALID_INDEX }
+}
 
 const val INVALID_INDEX: Int = -1
 const val ROUND_INDEX_RESULT_COUNT = 8
-val roundIndexResult: MutableList<Int> = MutableList(ROUND_INDEX_RESULT_COUNT) { INVALID_INDEX }
-fun LifeModel2.getRoundIndex(meIndex: Int): List<Int> {
+val roundIndexResult: MutableList<RoundPoint> = MutableList(ROUND_INDEX_RESULT_COUNT) { RoundPoint.Invalid }
+fun LifeModel2.getRoundIndex(meIndex: Int): List<RoundPoint> {
     val width = mapSize.width
     val height = mapSize.height
     val mX = life[meIndex].x
     val mY = life[meIndex].y
     when {
         mX == 0 && mY == 0 -> {
-            roundIndexResult[0] = INVALID_INDEX
-            roundIndexResult[1] = INVALID_INDEX
-            roundIndexResult[2] = INVALID_INDEX
-            roundIndexResult[3] = meIndex + 1
-            roundIndexResult[4] = meIndex + width + 1
-            roundIndexResult[5] = meIndex + width
-            roundIndexResult[6] = INVALID_INDEX
-            roundIndexResult[7] = INVALID_INDEX
+            roundIndexResult[0] = RoundPoint.Invalid
+            roundIndexResult[1] = RoundPoint.Invalid
+            roundIndexResult[2] = RoundPoint.Invalid
+            roundIndexResult[3] = RoundPoint.Point3
+            roundIndexResult[4] = RoundPoint.Point4
+            roundIndexResult[5] = RoundPoint.Point5
+            roundIndexResult[6] = RoundPoint.Invalid
+            roundIndexResult[7] = RoundPoint.Invalid
         }
         mX == (width - 1) && mY == 0 -> {
-            roundIndexResult[0] = INVALID_INDEX
-            roundIndexResult[1] = INVALID_INDEX
-            roundIndexResult[2] = INVALID_INDEX
-            roundIndexResult[3] = INVALID_INDEX
-            roundIndexResult[4] = INVALID_INDEX
-            roundIndexResult[5] = meIndex + width
-            roundIndexResult[6] = meIndex + width - 1
-            roundIndexResult[7] = meIndex - 1
+            roundIndexResult[0] = RoundPoint.Invalid
+            roundIndexResult[1] = RoundPoint.Invalid
+            roundIndexResult[2] = RoundPoint.Invalid
+            roundIndexResult[3] = RoundPoint.Invalid
+            roundIndexResult[4] = RoundPoint.Invalid
+            roundIndexResult[5] = RoundPoint.Point5
+            roundIndexResult[6] = RoundPoint.Point6
+            roundIndexResult[7] = RoundPoint.Point7
         }
         mX == 0 && mY == height - 1 -> {
-            roundIndexResult[0] = INVALID_INDEX
-            roundIndexResult[1] = meIndex - width
-            roundIndexResult[2] = meIndex - width + 1
-            roundIndexResult[3] = meIndex + 1
-            roundIndexResult[4] = INVALID_INDEX
-            roundIndexResult[5] = INVALID_INDEX
-            roundIndexResult[6] = INVALID_INDEX
-            roundIndexResult[7] = INVALID_INDEX
+            roundIndexResult[0] = RoundPoint.Invalid
+            roundIndexResult[1] = RoundPoint.Point1
+            roundIndexResult[2] = RoundPoint.Point2
+            roundIndexResult[3] = RoundPoint.Point3
+            roundIndexResult[4] = RoundPoint.Invalid
+            roundIndexResult[5] = RoundPoint.Invalid
+            roundIndexResult[6] = RoundPoint.Invalid
+            roundIndexResult[7] = RoundPoint.Invalid
         }
         mX == width - 1 && mY == height - 1 -> {
-            roundIndexResult[0] = meIndex - width - 1
-            roundIndexResult[1] = meIndex - width
-            roundIndexResult[2] = INVALID_INDEX
-            roundIndexResult[3] = INVALID_INDEX
-            roundIndexResult[4] = INVALID_INDEX
-            roundIndexResult[5] = INVALID_INDEX
-            roundIndexResult[6] = INVALID_INDEX
-            roundIndexResult[7] = meIndex - 1
+            roundIndexResult[0] = RoundPoint.Point0
+            roundIndexResult[1] = RoundPoint.Point1
+            roundIndexResult[2] = RoundPoint.Invalid
+            roundIndexResult[3] = RoundPoint.Invalid
+            roundIndexResult[4] = RoundPoint.Invalid
+            roundIndexResult[5] = RoundPoint.Invalid
+            roundIndexResult[6] = RoundPoint.Invalid
+            roundIndexResult[7] = RoundPoint.Point7
         }
         mX != 0 && mX != width -1 && mY == 0 -> {
-            roundIndexResult[0] = INVALID_INDEX
-            roundIndexResult[1] = INVALID_INDEX
-            roundIndexResult[2] = INVALID_INDEX
-            roundIndexResult[3] = meIndex + 1
-            roundIndexResult[4] = meIndex + width + 1
-            roundIndexResult[5] = meIndex + width
-            roundIndexResult[6] = meIndex + width - 1
-            roundIndexResult[7] = meIndex - 1
+            roundIndexResult[0] = RoundPoint.Invalid
+            roundIndexResult[1] = RoundPoint.Invalid
+            roundIndexResult[2] = RoundPoint.Invalid
+            roundIndexResult[3] = RoundPoint.Point3
+            roundIndexResult[4] = RoundPoint.Point4
+            roundIndexResult[5] = RoundPoint.Point5
+            roundIndexResult[6] = RoundPoint.Point6
+            roundIndexResult[7] = RoundPoint.Point7
         }
         mX == 0 && mY != 0 && mY != height - 1 -> {
-            roundIndexResult[0] = INVALID_INDEX
-            roundIndexResult[1] = meIndex - width
-            roundIndexResult[2] = meIndex - width + 1
-            roundIndexResult[3] = meIndex + 1
-            roundIndexResult[4] = meIndex + width + 1
-            roundIndexResult[5] = meIndex + width
-            roundIndexResult[6] = INVALID_INDEX
-            roundIndexResult[7] = INVALID_INDEX
+            roundIndexResult[0] = RoundPoint.Invalid
+            roundIndexResult[1] = RoundPoint.Point1
+            roundIndexResult[2] = RoundPoint.Point2
+            roundIndexResult[3] = RoundPoint.Point3
+            roundIndexResult[4] = RoundPoint.Point4
+            roundIndexResult[5] = RoundPoint.Point5
+            roundIndexResult[6] = RoundPoint.Invalid
+            roundIndexResult[7] = RoundPoint.Invalid
         }
 
         mX == width - 1 && mY != 0 && mY != height - 1 -> {
-            roundIndexResult[0] = meIndex - width - 1
-            roundIndexResult[1] = meIndex - width
-            roundIndexResult[2] = INVALID_INDEX
-            roundIndexResult[3] = INVALID_INDEX
-            roundIndexResult[4] = INVALID_INDEX
-            roundIndexResult[5] = meIndex + width
-            roundIndexResult[6] = meIndex + width - 1
-            roundIndexResult[7] = meIndex - 1
+            roundIndexResult[0] = RoundPoint.Point0
+            roundIndexResult[1] = RoundPoint.Point1
+            roundIndexResult[2] = RoundPoint.Invalid
+            roundIndexResult[3] = RoundPoint.Invalid
+            roundIndexResult[4] = RoundPoint.Invalid
+            roundIndexResult[5] = RoundPoint.Point5
+            roundIndexResult[6] = RoundPoint.Point6
+            roundIndexResult[7] = RoundPoint.Point7
         }
 
         mX != 0 && mX != width -1 && mY == height - 1 -> {
-            roundIndexResult[0] = meIndex - width - 1
-            roundIndexResult[1] = meIndex - width
-            roundIndexResult[2] = meIndex - width + 1
-            roundIndexResult[3] = meIndex + 1
-            roundIndexResult[4] = INVALID_INDEX
-            roundIndexResult[5] = INVALID_INDEX
-            roundIndexResult[6] = INVALID_INDEX
-            roundIndexResult[7] = meIndex - 1
+            roundIndexResult[0] = RoundPoint.Point0
+            roundIndexResult[1] = RoundPoint.Point1
+            roundIndexResult[2] = RoundPoint.Point2
+            roundIndexResult[3] = RoundPoint.Point3
+            roundIndexResult[4] = RoundPoint.Invalid
+            roundIndexResult[5] = RoundPoint.Invalid
+            roundIndexResult[6] = RoundPoint.Invalid
+            roundIndexResult[7] = RoundPoint.Point7
         }
 
         else -> {
-            roundIndexResult[0] = meIndex - width - 1
-            roundIndexResult[1] = meIndex - width
-            roundIndexResult[2] = meIndex - width + 1
-            roundIndexResult[3] = meIndex + 1
-            roundIndexResult[4] = meIndex + width + 1
-            roundIndexResult[5] = meIndex + width
-            roundIndexResult[6] = meIndex + width - 1
-            roundIndexResult[7] = meIndex - 1
+            roundIndexResult[0] = RoundPoint.Point0
+            roundIndexResult[1] = RoundPoint.Point1
+            roundIndexResult[2] = RoundPoint.Point2
+            roundIndexResult[3] = RoundPoint.Point3
+            roundIndexResult[4] = RoundPoint.Point4
+            roundIndexResult[5] = RoundPoint.Point5
+            roundIndexResult[6] = RoundPoint.Point6
+            roundIndexResult[7] = RoundPoint.Point7
         }
     }
     return roundIndexResult
@@ -177,14 +216,15 @@ fun LifeModel2.getRoundIndex(meIndex: Int): List<Int> {
 
 fun LifeModel2.getAroundAliveCount(meIndex: Int): Int {
     val roundIndexes = getRoundIndex(meIndex)
+    val size: Size = mapSize
     var result: Int = 0
     var index = 0
-    while (index > ROUND_INDEX_RESULT_COUNT - 1) {
-        val roundIndex =  roundIndexes[index]
+    while (index < ROUND_INDEX_RESULT_COUNT) {
+        val roundIndex = roundIndexes[index].index(meIndex, size.width, size.height)
         if (roundIndex != INVALID_INDEX && life[roundIndex].isAlive) {
-            result ++
+            result++
         }
-        index ++
+        index++
     }
     return result
 }

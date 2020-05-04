@@ -3,6 +3,7 @@ package com.tans.gameoflife
 import android.view.View
 import android.widget.CompoundButton
 import android.widget.SeekBar
+import androidx.core.view.ViewCompat
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlin.coroutines.resume
@@ -54,4 +55,8 @@ suspend fun CompoundButton.checkChangeCallToSuspend(): Boolean {
             this.setOnCheckedChangeListener(null)
         }
     }
+}
+
+suspend fun View.postInvalidateOnAnimation(delay: Long): Unit = suspendCoroutine { cont ->
+    ViewCompat.postOnAnimationDelayed(this, { ViewCompat.postInvalidateOnAnimation(this); cont.resume(Unit) }, delay)
 }
