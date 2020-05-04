@@ -43,7 +43,8 @@ fun Size.randomLife2(@IntRange(from = 0L, to = 100L) probability: Int, seed: Lon
             val x = index % width
             val y = index / width
             Cell(x = x, y = y, isAlive = isAlive)
-        }
+        },
+        aliveLifeCache = MutableList(width * height) { false }
     )
 }
 

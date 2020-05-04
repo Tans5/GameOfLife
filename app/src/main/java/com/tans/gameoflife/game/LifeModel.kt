@@ -40,8 +40,17 @@ data class Cell(
 
  data class LifeModel2(
      val mapSize: Size,
-     val life: MutableList<Cell>
- )
+     val life: MutableList<Cell>,
+     val aliveLifeCache: MutableList<Boolean>
+ ) {
+     fun syncLifeWithCache() {
+         var index: Int = 0
+         while (index < life.size) {
+             life[index].isAlive = aliveLifeCache[index]
+             index ++
+         }
+     }
+ }
 
 fun Size.emptyLifeModel(): LifeModel2 = LifeModel2(
     mapSize = this,
@@ -49,5 +58,6 @@ fun Size.emptyLifeModel(): LifeModel2 = LifeModel2(
         val x = index % width
         val y = index / width
         Cell(x, y, false)
-    }
+    },
+    aliveLifeCache = MutableList(width * height) {  false }
 )

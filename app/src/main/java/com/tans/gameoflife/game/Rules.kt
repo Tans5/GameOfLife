@@ -35,11 +35,12 @@ object DefaultRule2 : Rule2 {
                 val aliveCount = life.getAroundAliveCount(meIndex)
                 val meIsAlive = life.life[meIndex].isAlive
                 when {
-                    meIsAlive && (aliveCount == 2 || aliveCount == 3) -> life.life[meIndex].isAlive = true
-                    !meIsAlive && aliveCount == 3 -> life.life[meIndex].isAlive = true
-                    else -> life.life[meIndex].isAlive = false
+                    meIsAlive && (aliveCount == 2 || aliveCount == 3) -> life.aliveLifeCache[meIndex] = true
+                    !meIsAlive && aliveCount == 3 -> life.aliveLifeCache[meIndex] = true
+                    else -> life.aliveLifeCache[meIndex] = false
                 }
             }
+            life.syncLifeWithCache()
         }
     }
 
