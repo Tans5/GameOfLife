@@ -18,10 +18,29 @@ object DefaultRule : Rule {
                         meIsAlive && (aroundAliveCount == 2 || aroundAliveCount == 3) -> yield(meIndex)
                         !meIsAlive && aroundAliveCount == 3 -> yield(meIndex)
                     }
-
                 }
             }.toList().toIntArray()
         )
+    }
+
+}
+
+typealias Rule2 = (LifeModel2) -> Unit
+
+object DefaultRule2 : Rule2 {
+
+    override fun invoke(life: LifeModel2) {
+        synchronized(life) {
+            repeat(life.mapSize.height * life.mapSize.width) { meIndex ->
+                val aliveCount = life.getAroundAliveCount(meIndex)
+//                val meIsAlive = life.life[meIndex].isAlive
+//                when {
+//                    meIsAlive && (aliveCount == 3 || aliveCount == 3) -> life.life[meIndex].isAlive = true
+//                    !meIsAlive && aliveCount == 3 -> life.life[meIndex].isAlive = true
+//                    else -> life.life[meIndex].isAlive = false
+//                }
+            }
+        }
     }
 
 }

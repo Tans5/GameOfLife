@@ -28,3 +28,26 @@ data class Size(val width: Int,
         return "$width * $height"
     }
 }
+
+
+// x, y, isAlive
+// typealias Cell = Triple<Short, Short, Boolean>\
+data class Cell(
+    val x: Int,
+    val y: Int,
+    var isAlive: Boolean = false
+)
+
+ data class LifeModel2(
+     val mapSize: Size,
+     val life: MutableList<Cell>
+ )
+
+fun Size.emptyLifeModel(): LifeModel2 = LifeModel2(
+    mapSize = this,
+    life = MutableList(width * height) { index ->
+        val x = index % width
+        val y = index / width
+        Cell(x, y, false)
+    }
+)

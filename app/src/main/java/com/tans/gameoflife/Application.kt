@@ -2,6 +2,7 @@ package com.tans.gameoflife
 
 import android.app.Application
 import com.tans.gameoflife.game.DefaultRule
+import com.tans.gameoflife.game.DefaultRule2
 import com.tans.gameoflife.game.Size
 import com.tans.gameoflife.settings.GameLaunchType
 import com.tans.gameoflife.settings.globalSettingsState
@@ -20,7 +21,7 @@ class Application : Application(), CoroutineScope {
 
         // Init Settings
         launch {
-            globalSettingsState.gameLaunchType.send(GameLaunchType.Random(10, rule = DefaultRule, mapSize = Size(50, 50), speed = 100))
+            globalSettingsState.gameLaunchType.send(GameLaunchType.Random(10, rule = DefaultRule2, mapSize = Size(50, 50), speed = 100))
             globalSettingsState.showBorder.send(false)
         }
     }

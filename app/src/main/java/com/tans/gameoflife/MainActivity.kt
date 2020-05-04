@@ -23,19 +23,20 @@ class MainActivity : BaseActivity() {
             // Init default state.
             state.isPaused.send(true)
             val launchType = globalSettingsState.gameLaunchType.asFlow().first()
-            when (launchType) {
+            val lifeModel = when (launchType) {
                 is GameLaunchType.Random -> {
-                    state.life.send(launchType.refreshInitLifeModel(System.currentTimeMillis()))
+                    launchType.refreshInitLifeModel(System.currentTimeMillis())
                 }
+                else -> null
             }
 
             launch {
                 while (!state.isPaused.asFlow().filter { !it }.first()) {
                     val launchTypeLocal = globalSettingsState.gameLaunchType.asFlow().first()
                     delay(launchTypeLocal.speed)
-                    val oldLife = state.life.asFlow().first()
-                    val newLife = launchType.rule(oldLife)
-                    state.life.send(newLife)
+                    if (lifeModel != null) {
+                        launchTypeLocal.rule(lifeModel)
+                    }
                 }
             }
 
@@ -67,9 +68,9 @@ class MainActivity : BaseActivity() {
                     }
                 }
 
-            state.life.asFlow()
-                .distinctUntilChanged()
-                .collectInCoroutine(this) { life -> game_view.lifeModel = life }
+//            state.life.asFlow()
+//                .distinctUntilChanged()
+//                .collectInCoroutine(this) { life -> game_view.lifeModel = life }
 
             globalSettingsState.gameLaunchType.asFlow()
                 .distinctUntilChanged()
@@ -108,6 +109,6 @@ class MainActivity : BaseActivity() {
 }
 
 data class MainActivityState(
-    val isPaused: BroadcastChannel<Boolean> = BroadcastChannel(Channel.CONFLATED),
-    val life: BroadcastChannel<LifeModel> = BroadcastChannel(Channel.CONFLATED)
+    val isPaused: BroadcastChannel<Boolean> = BroadcastChannel(Channel.CONFLATED)
+//    val life: BroadcastChannel<LifeModel> = BroadcastChannel(Channel.CONFLATED)
 )
