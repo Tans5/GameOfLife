@@ -7,6 +7,10 @@ import kotlinx.coroutines.channels.Channel
 
 sealed class GameLaunchType(open val rule: Rule, open val mapSize: Size, open val speed: Long) {
 
+    fun nextLife(lifeModel: LifeModel) { rule(lifeModel) }
+
+    abstract fun refresh(): LifeModel
+
     data class Random(@IntRange(from = 0L, to = 100L) val eachCellProbability: Int,
                       override val rule: Rule,
                       override val mapSize: Size,
@@ -15,11 +19,24 @@ sealed class GameLaunchType(open val rule: Rule, open val mapSize: Size, open va
             return "Random, Probability: $eachCellProbability"
         }
 
-        fun refreshInitLifeModel(seed: Long): LifeModel = mapSize.randomLife(eachCellProbability, seed)
-
-        fun nextLife(lifeModel: LifeModel) { rule(lifeModel) }
+        /**
+         * side effect.
+         */
+        override fun refresh(): LifeModel {
+            return mapSize.randomLife(eachCellProbability, System.currentTimeMillis())
+        }
     }
-    class Local(val file: String, rule: Rule, mapSize: Size, speed: Long) : GameLaunchType(rule, mapSize, speed)
+
+    data class FromCode(val code: String,
+                        override val rule: Rule,
+                        override val mapSize: Size,
+                        override val speed: Long) : GameLaunchType(rule, mapSize, speed) {
+
+        override fun refresh(): LifeModel {
+            // TODO: parse code to LifeModel
+            return mapSize.emptyLifeModel()
+        }
+    }
 }
 
 /**

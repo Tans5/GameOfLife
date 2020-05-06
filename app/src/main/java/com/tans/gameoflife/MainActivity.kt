@@ -1,12 +1,6 @@
 package com.tans.gameoflife
 
 import android.content.Intent
-import androidx.core.view.ViewCompat
-import com.tans.gameoflife.game.DefaultRule
-import com.tans.gameoflife.game.LifeModel
-import com.tans.gameoflife.game.Size
-import com.tans.gameoflife.game.randomLife
-import com.tans.gameoflife.settings.GameLaunchType
 import com.tans.gameoflife.settings.globalSettingsState
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.*
@@ -19,30 +13,18 @@ class MainActivity : BaseActivity() {
     val state: MainActivityState = MainActivityState()
     override val layoutRes: Int = R.layout.activity_main
 
-    override fun initData() {
-        launch {
-            // Init default state.
-            state.isPaused.send(true)
-            val launchType = globalSettingsState.gameLaunchType.asFlow().first()
-            val lifeModel = when (launchType) {
-                is GameLaunchType.Random -> {
-                    launchType.refreshInitLifeModel(System.currentTimeMillis())
-                }
-                else -> null
+    init {
+        activityLatestLifeStateChannel.asFlow()
+            .collectInCoroutine(this) {
+                println("Life: $it")
             }
-            game_view.lifeModel = lifeModel
-            launch(Dispatchers.IO) {
-                while (!state.isPaused.asFlow().filter { !it }.first() && lifeModel != null) {
-                    val launchTypeLocal = globalSettingsState.gameLaunchType.asFlow().first()
-                    launchTypeLocal.rule(lifeModel)
-                    game_view.postInvalidateOnAnimation(launchTypeLocal.speed)
-                }
-            }
-
-        }
     }
 
+    override fun initData() {}
+
     override fun initViews() {
+        var gameJob: Job? = null
+
         launch {
             start_pause_bt.clicks()
                 .collectInCoroutine(this) {
@@ -67,9 +49,6 @@ class MainActivity : BaseActivity() {
                     }
                 }
 
-//            state.life.asFlow()
-//                .distinctUntilChanged()
-//                .collectInCoroutine(this) { life -> game_view.lifeModel = life }
 
             globalSettingsState.gameLaunchType.asFlow()
                 .distinctUntilChanged()
@@ -78,9 +57,22 @@ class MainActivity : BaseActivity() {
                     map_size_tv.text = "Map Size: ${type.mapSize}"
                 }
 
-            globalSettingsState.gameLaunchType.asFlow()
-                .distinctUntilChanged()
+            activityLatestLifeStateChannel.asFlow()
+                .filter {
+                    println("life: $it")
+                    it == ActivityLife.OnResume
+                }
+                .map { globalSettingsState.gameLaunchType.asFlow().first() }
+                .distinctUntilChanged { old, new ->
+                    when {
+                        old.mapSize != new.mapSize -> false
+                        old::class != new::class -> false
+                        else -> true
+                    }
+                }
                 .collectInCoroutine(this) {
+                    gameJob?.cancelAndJoin()
+                    gameJob = startGame()
                     type_tv.text = it.toString()
                 }
 
@@ -94,9 +86,23 @@ class MainActivity : BaseActivity() {
             globalSettingsState.showBorder.asFlow()
                 .distinctUntilChanged()
                 .collectInCoroutine(this) {
-                    game_view.drawBorder = it
                     state.isPaused.send(true)
+                    game_view.drawBorder = it
                 }
+        }
+    }
+
+    fun startGame(): Job = launch {
+        state.isPaused.send(true)
+        val launchType = globalSettingsState.gameLaunchType.asFlow().first()
+        val lifeModel = launchType.refresh()
+        game_view.lifeModel = lifeModel
+        launch(Dispatchers.IO) {
+            while (!state.isPaused.asFlow().filter { !it }.first()) {
+                val launchTypeLocal = globalSettingsState.gameLaunchType.asFlow().first()
+                launchTypeLocal.rule(lifeModel)
+                game_view.postInvalidateOnAnimation(launchTypeLocal.speed)
+            }
         }
     }
 
@@ -109,5 +115,4 @@ class MainActivity : BaseActivity() {
 
 data class MainActivityState(
     val isPaused: BroadcastChannel<Boolean> = BroadcastChannel(Channel.CONFLATED)
-//    val life: BroadcastChannel<LifeModel> = BroadcastChannel(Channel.CONFLATED)
 )
