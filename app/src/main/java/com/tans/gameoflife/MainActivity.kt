@@ -37,15 +37,23 @@ class MainActivity : BaseActivity() {
                     startActivity(Intent(this@MainActivity, SettingsActivity::class.java))
                 }
 
+            refresh_bt.clicks()
+                .collectInCoroutine(this) {
+                    gameJob?.cancelAndJoin()
+                    gameJob = startGame()
+                }
+
             state.isPaused.asFlow()
                 .distinctUntilChanged()
                 .collectInCoroutine(this) { isPaused ->
                     if (isPaused) {
                         start_pause_bt.text = getString(R.string.start)
                         settings_bt.isEnabled = true
+                        refresh_bt.isEnabled = true
                     } else {
                         start_pause_bt.text = getString(R.string.pause)
                         settings_bt.isEnabled = false
+                        refresh_bt.isEnabled = false
                     }
                 }
 
@@ -100,7 +108,7 @@ class MainActivity : BaseActivity() {
         launch(Dispatchers.IO) {
             while (!state.isPaused.asFlow().filter { !it }.first()) {
                 val launchTypeLocal = globalSettingsState.gameLaunchType.asFlow().first()
-                launchTypeLocal.rule(lifeModel)
+                launchTypeLocal.nextLife(lifeModel)
                 game_view.postInvalidateOnAnimation(launchTypeLocal.speed)
             }
         }

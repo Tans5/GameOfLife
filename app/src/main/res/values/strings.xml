@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">Game Of Life</string>
     <string name="settings">Settings</string>
+    <string name="refresh">Refresh</string>
     <string name="start">Start</string>
     <string name="pause">Pause</string>
     <string name="speed">Speed:</string>

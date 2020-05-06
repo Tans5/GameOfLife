@@ -60,6 +60,18 @@
                 app:layout_constraintStart_toEndOf="@id/start_pause_bt"
                 app:layout_constraintTop_toBottomOf="@id/game_view" />
 
+            <Button
+                android:id="@+id/refresh_bt"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:layout_marginStart="10dp"
+                android:text="@string/refresh"
+                android:textColor="@android:color/white"
+                android:background="@drawable/common_button_bg"
+                app:layout_constraintStart_toEndOf="@id/settings_bt"
+                app:layout_constraintTop_toBottomOf="@id/game_view"/>
+
             <TextView
                 android:id="@+id/map_size_tv"
                 android:layout_width="wrap_content"
