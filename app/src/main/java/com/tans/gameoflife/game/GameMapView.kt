@@ -67,10 +67,10 @@ class GameMapView : View {
             && mapSize != null
             && life != null) {
             val mapScreenWidth = measuredWidth.let { screenWidth ->
-                screenWidth - (screenWidth - borderSize) % mapSize.width
+                screenWidth + mapSize.width - (screenWidth - borderSize) % mapSize.width
             }
             val mapScreenHeight = measuredHeight.let { screenHeight ->
-                screenHeight - (screenHeight - borderSize) % mapSize.height
+                screenHeight + mapSize.height - (screenHeight - borderSize) % mapSize.height
             }
             val cellSize = min((mapScreenWidth - borderSize) / mapSize.width, (mapScreenHeight - borderSize) / mapSize.height) - borderSize
             if (cellSize >= 1) {

@@ -36,7 +36,7 @@ val globalSettingsState = SettingsState()
 
 const val SIZE_MAX: Int = 500
 const val SIZE_MIN: Int = 10
-const val SPEED_MAX: Long = 50
+const val SPEED_MAX: Long = 10
 const val SPEED_MIN: Long = 1000
 const val CELL_ALIVE_PROBABILITY_MAX: Int = 100
 const val CELL_ALIVE_PROBABILITY_MIN: Int = 0
