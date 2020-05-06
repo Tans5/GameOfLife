@@ -2,7 +2,7 @@ package com.tans.gameoflife.game
 
 typealias Rule = (LifeModel) -> Unit
 
-//B3S23
+// B3/S23
 object DefaultRule : CommonRule(born = intArrayOf(3), survive = intArrayOf(2, 3))
 
 open class CommonRule(val born: IntArray, val survive: IntArray) : Rule {

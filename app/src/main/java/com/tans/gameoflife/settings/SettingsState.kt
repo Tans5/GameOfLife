@@ -27,14 +27,13 @@ sealed class GameLaunchType(open val rule: Rule, open val mapSize: Size, open va
         }
     }
 
-    data class FromCode(val code: String,
+    data class Common(val initLifeModel: LifeModel,
                         override val rule: Rule,
                         override val mapSize: Size,
                         override val speed: Long) : GameLaunchType(rule, mapSize, speed) {
 
         override fun refresh(): LifeModel {
-            // TODO: parse code to LifeModel
-            return mapSize.emptyLifeModel()
+            return initLifeModel.copy()
         }
     }
 }
