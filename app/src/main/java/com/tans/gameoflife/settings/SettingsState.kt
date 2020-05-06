@@ -5,21 +5,21 @@ import com.tans.gameoflife.game.*
 import kotlinx.coroutines.channels.BroadcastChannel
 import kotlinx.coroutines.channels.Channel
 
-sealed class GameLaunchType(open val rule: Rule2, open val mapSize: Size, open val speed: Long) {
+sealed class GameLaunchType(open val rule: Rule, open val mapSize: Size, open val speed: Long) {
 
     data class Random(@IntRange(from = 0L, to = 100L) val eachCellProbability: Int,
-                      override val rule: Rule2,
+                      override val rule: Rule,
                       override val mapSize: Size,
                       override val speed: Long) : GameLaunchType(rule, mapSize, speed) {
         override fun toString(): String {
             return "Random, Probability: $eachCellProbability"
         }
 
-        fun refreshInitLifeModel(seed: Long): LifeModel2 = mapSize.randomLife2(eachCellProbability, seed)
+        fun refreshInitLifeModel(seed: Long): LifeModel = mapSize.randomLife(eachCellProbability, seed)
 
-        fun nextLife(lifeModel2: LifeModel2) { rule(lifeModel2) }
+        fun nextLife(lifeModel: LifeModel) { rule(lifeModel) }
     }
-    class Local(val file: String, rule: Rule2, mapSize: Size, speed: Long) : GameLaunchType(rule, mapSize, speed)
+    class Local(val file: String, rule: Rule, mapSize: Size, speed: Long) : GameLaunchType(rule, mapSize, speed)
 }
 
 /**

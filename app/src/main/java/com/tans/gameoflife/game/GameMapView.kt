@@ -11,7 +11,7 @@ import kotlin.math.min
 
 class GameMapView : View {
 
-    var lifeModel: LifeModel2? = null
+    var lifeModel: LifeModel? = null
     set(value) {
         field = value
         ViewCompat.postInvalidateOnAnimation(this)
@@ -27,7 +27,7 @@ class GameMapView : View {
 
     val lineColor = Color.BLACK
 
-    val cellColor = Color.GREEN
+    val cellColor = Color.BLACK
 
     val linePaint: Paint by lazy {
         Paint().apply {
