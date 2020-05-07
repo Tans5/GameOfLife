@@ -1,13 +1,8 @@
 package com.tans.gameoflife
 
-import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.channels.*
-import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.launch
+import com.tans.gameoflife.game.GollyCodeParser
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
-
-import org.junit.Assert.*
 
 /**
  * Example local unit test, which will execute on the development machine (host).
@@ -18,9 +13,11 @@ class ExampleUnitTest {
 
     @Test
     fun addition_isCorrect() = runBlocking<Unit> {
-        val channel = BroadcastChannel<Int>(Channel.CONFLATED)
-        channel.send(1)
-        println("Received1: ${channel.asFlow().first()}")
-        println("Received2: ${channel.asFlow().first()}")
+//        val channel = BroadcastChannel<Int>(Channel.CONFLATED)
+//        channel.send(1)
+//        println("Received1: ${channel.asFlow().first()}")
+//        println("Received2: ${channel.asFlow().first()}")
+        val result = GollyCodeParser.parseToSquareData(11, 11, "2b4o\$bo4bob2o\$bo4bo3bo\$4b2o4bo\$b2o4bo2bo\$o2bo3bo2bo\$o2bo4b2o\$o4b2o\$o3bo4bo\$b2obo4bo!")
+        println(result)
     }
 }
