@@ -1,5 +1,6 @@
 package com.tans.gameoflife
 
+import android.view.View
 import com.tans.gameoflife.game.Size
 import com.tans.gameoflife.settings.*
 import kotlinx.android.synthetic.main.activity_settings.*
@@ -18,11 +19,28 @@ class SettingsActivity : BaseActivity() {
     override fun initViews() {
 
         launch {
-            map_size_sb.progress = globalSettingsState.gameLaunchType.asFlow().map { it.mapSize }.first().sizeToProgress()
             speed_sb.progress = globalSettingsState.gameLaunchType.asFlow().map { it.speed }.first().speedToProgress()
-            // TODO: Now GameLaunchType only support Random
-            probability_sb.progress = globalSettingsState.gameLaunchType.asFlow().map { (it as? GameLaunchType.Random)?.eachCellProbability ?: 0 }
-                .first().probabilityToProgress()
+
+            // Control probability UI.
+            globalSettingsState.gameLaunchType.asFlow()
+                .distinctUntilChanged { old, new ->
+                    old is GameLaunchType.Random && new is GameLaunchType.Random
+                }
+                .collectInCoroutine(this) { type ->
+                    when (type) {
+                        is GameLaunchType.Random -> {
+                            probability_group.visibility = View.VISIBLE
+                            size_group.visibility = View.VISIBLE
+                            map_size_sb.progress = type.mapSize.sizeToProgress()
+                            probability_sb.progress = type.eachCellProbability.probabilityToProgress()
+                        }
+
+                        is GameLaunchType.Common -> {
+                            probability_group.visibility = View.GONE
+                            size_group.visibility = View.GONE
+                        }
+                    }
+                }
 
             show_border_switch.isChecked = globalSettingsState.showBorder.asFlow().first()
 
@@ -41,6 +59,10 @@ class SettingsActivity : BaseActivity() {
                 .collectInCoroutine(this) { progress ->
                     when (val oldLaunchType = globalSettingsState.gameLaunchType.asFlow().first()) {
                         is GameLaunchType.Random -> {
+                            val newLaunchType = oldLaunchType.copy(speed = progress.progressToSpeed())
+                            globalSettingsState.gameLaunchType.send(newLaunchType)
+                        }
+                        is GameLaunchType.Common -> {
                             val newLaunchType = oldLaunchType.copy(speed = progress.progressToSpeed())
                             globalSettingsState.gameLaunchType.send(newLaunchType)
                         }

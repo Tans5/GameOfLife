@@ -65,6 +65,12 @@
                 app:layout_constraintTop_toTopOf="@id/map_size_tv"
                 tool:text="50*50" />
 
+            <androidx.constraintlayout.widget.Group
+                android:id="@+id/size_group"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:constraint_referenced_ids="map_size_tv, map_size_sb, map_size_result_tv"/>
+
             <TextView
                 android:id="@+id/speed_tv"
                 android:layout_width="wrap_content"
@@ -123,6 +129,12 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="@id/probability_sb"
                 tool:text="0.5" />
+
+            <androidx.constraintlayout.widget.Group
+                android:id="@+id/probability_group"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:constraint_referenced_ids="probability_result_tv, probability_sb, probability_tv"/>
 
             <TextView
                 android:id="@+id/show_border_tv"

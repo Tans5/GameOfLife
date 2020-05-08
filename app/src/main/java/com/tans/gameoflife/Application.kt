@@ -1,9 +1,12 @@
 package com.tans.gameoflife
 
 import android.app.Application
+import com.tans.gameoflife.game.DEFAULT_GOLLY_CODE
 import com.tans.gameoflife.game.DefaultRule
+import com.tans.gameoflife.game.GollyCodeParser
 import com.tans.gameoflife.game.Size
 import com.tans.gameoflife.settings.GameLaunchType
+import com.tans.gameoflife.settings.SettingsState
 import com.tans.gameoflife.settings.globalSettingsState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -20,7 +23,8 @@ class Application : Application(), CoroutineScope {
 
         // Init Settings
         launch {
-            globalSettingsState.gameLaunchType.send(GameLaunchType.Random(10, rule = DefaultRule, mapSize = Size(50, 50), speed = 100))
+            val (lifeModel, rule) = GollyCodeParser(DEFAULT_GOLLY_CODE[0])
+            globalSettingsState.gameLaunchType.send(GameLaunchType.Common(initLifeModel = lifeModel, rule = rule, mapSize = lifeModel.mapSize, speed = 100))
             globalSettingsState.showBorder.send(false)
         }
     }

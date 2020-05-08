@@ -35,6 +35,10 @@ sealed class GameLaunchType(open val rule: Rule, open val mapSize: Size, open va
         override fun refresh(): LifeModel {
             return initLifeModel.copy()
         }
+
+        override fun toString(): String {
+            return "Common"
+        }
     }
 }
 

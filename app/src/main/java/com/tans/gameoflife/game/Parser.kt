@@ -1,6 +1,7 @@
 package com.tans.gameoflife.game
 
 import com.tans.gameoflife.settings.SIZE_MAX
+import kotlin.math.max
 
 typealias ParseResult = Pair<LifeModel, Rule>
 
@@ -9,6 +10,10 @@ typealias Parser = (code: String) -> ParseResult
 
 
 object GollyParseError : Throwable("Parse code occur error!")
+
+val DEFAULT_GOLLY_CODE = listOf<String>(
+    "x = 365, y = 1, rule = B3/S23\n365o!"
+)
 /**
  * Code demo:
  * x = 11, y = 11, rule = B3/S23
@@ -179,11 +184,12 @@ object GollyCodeParser : Parser {
             height * 2 <= SIZE_MAX -> height * 2
             else -> SIZE_MAX
         }
+        val bestSize = max(newWidth, newHeight)
         return this.margin(
-            start = (newWidth - width) / 2,
-            end = newWidth - width - (newWidth - width) / 2,
-            top = (newHeight - width) / 2,
-            bottom = newHeight - width - (newHeight - width) / 2
+            start = (bestSize - width) / 2,
+            end = bestSize - width - (bestSize - width) / 2,
+            top = (bestSize - width) / 2,
+            bottom = bestSize - width - (bestSize - width) / 2
         )
     }
 

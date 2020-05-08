@@ -1,6 +1,7 @@
 package com.tans.gameoflife
 
 import android.content.Intent
+import com.tans.gameoflife.settings.GameLaunchType
 import com.tans.gameoflife.settings.globalSettingsState
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.*
@@ -59,23 +60,24 @@ class MainActivity : BaseActivity() {
 
 
             globalSettingsState.gameLaunchType.asFlow()
-                .distinctUntilChanged()
+                .distinctUntilChanged { old, new -> old.mapSize == new.mapSize }
                 .collectInCoroutine(this) { type ->
                     state.isPaused.send(true)
                     map_size_tv.text = "Map Size: ${type.mapSize}"
                 }
 
             activityLatestLifeStateChannel.asFlow()
-                .filter {
-                    println("life: $it")
-                    it == ActivityLife.OnResume
-                }
+                .filter { it == ActivityLife.OnResume }
                 .map { globalSettingsState.gameLaunchType.asFlow().first() }
                 .distinctUntilChanged { old, new ->
-                    when {
-                        old.mapSize != new.mapSize -> false
-                        old::class != new::class -> false
-                        else -> true
+                    if (new is GameLaunchType.Common && old is GameLaunchType.Common) {
+                        new.initLifeModel == old.initLifeModel
+                    } else {
+                        when {
+                            old.mapSize != new.mapSize -> false
+                            old::class != new::class -> false
+                            else -> true
+                        }
                     }
                 }
                 .collectInCoroutine(this) {
