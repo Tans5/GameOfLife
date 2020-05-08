@@ -175,3 +175,22 @@ fun LifeModel.getAroundAliveCount(meIndex: Int): Int {
     }
     return result
 }
+
+fun LifeModel.margin(start: Int, end: Int, top: Int, bottom: Int): LifeModel {
+    val oldSize = mapSize
+    val oldLife = life
+    val newSize = Size(width = oldSize.width + start + end, height = oldSize.height + top + bottom)
+    return LifeModel(
+        mapSize = newSize,
+        life = MutableList(newSize.height * newSize.width) { index ->
+            val x = index % newSize.width
+            val y = index / newSize.width
+            if (x !in start until oldSize.width + start || y !in top until oldSize.height + top) {
+                Cell(x, y, false)
+            } else {
+                val oldIndex = (y - top) * oldSize.width + x - start
+                Cell(x, y, oldLife[oldIndex].isAlive)
+            }
+        }
+    )
+}

@@ -17,7 +17,7 @@ data class Cell(
  data class LifeModel(
      val mapSize: Size,
      val life: MutableList<Cell>,
-     val aliveLifeCache: MutableList<Boolean>
+     val aliveLifeCache: MutableList<Boolean> = MutableList(mapSize.width * mapSize.height) { false }
  ) {
      fun syncLifeWithCache() {
          var index: Int = 0

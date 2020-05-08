@@ -1,5 +1,7 @@
 package com.tans.gameoflife.game
 
+import com.tans.gameoflife.settings.SIZE_MAX
+
 typealias ParseResult = Pair<LifeModel, Rule>
 
 typealias Parser = (code: String) -> ParseResult
@@ -49,12 +51,19 @@ object GollyCodeParser : Parser {
             val rule = CommonRule(born = ruleKeyValue["born"]!!, survive = ruleKeyValue["survive"]!!)
             val squareData = parseToSquareData(size.width, size.height, lifeString)
 
+            val lifeModel = LifeModel(
+                mapSize = size,
+                life = MutableList(size.width * size.height) { index ->
+                    val x = index % size.width
+                    val y = index / size.width
+                    val isAlive = squareData.isAlive(x, y)
+                    Cell(x, y, isAlive)
+                }
+            )
+            return lifeModel.parseResultToBestSize() to rule
         } catch (e: Throwable) {
             throw GollyParseError
         }
-
-        // TODO: Replace it.
-        return Size(50, 50).emptyLifeModel() to DefaultRule
     }
 
     fun parseToLineDurationData(lifeString: String): Pair<LineDurationData, String> {
@@ -119,7 +128,7 @@ object GollyCodeParser : Parser {
         return LineData(width, durations) to isFinish
     }
 
-    enum class LineDurationType() { Alive, Dead }
+    enum class LineDurationType { Alive, Dead }
 
     data class LineDurationData(val length: Int, val type: LineDurationType)
 
@@ -127,21 +136,55 @@ object GollyCodeParser : Parser {
 
     data class LineData(val width: Int, val durations: List<LineDurationData>) {
 
-//        fun isAlive(x: Int): Boolean {
-//            if (x !in 0 until width) {
-//                throw GollyParseError
-//            }
-//            var count = durations[0].length
-//            var index = 0
-//            while (x !in 0 until count) {
-//                index ++
-//                count =
-//            }
-//        }
+        fun isAlive(x: Int): Boolean {
+            if (x !in 0 until width) {
+                throw GollyParseError
+            }
+            var count = durations[0].length
+            var index = 0
+            while (x !in 0 until count) {
+                index ++
+                count += durations[index].length
+            }
+            return durations[index].type == LineDurationType.Alive
+        }
     }
 
     fun emptyLineData(width: Int) = LineData(width = width, durations = listOf(LineDurationData(length = width, type = LineDurationType.Dead)))
 
-    data class SquareData(val width: Int, val height: Int, val lines: List<LineData>)
+    data class SquareData(val width: Int, val height: Int, val lines: List<LineData>) {
+
+        fun isAlive(x: Int, y: Int): Boolean {
+            if (x !in 0 until width || y !in 0 until height) {
+                throw GollyParseError
+            }
+            return lines[y].isAlive(x)
+        }
+
+    }
+
+    fun LifeModel.parseResultToBestSize(): LifeModel {
+        val width = mapSize.width
+        val height = mapSize.height
+        if (width > SIZE_MAX || height > SIZE_MAX) {
+            throw GollyParseError
+        }
+        val newWidth = when {
+            width * 3 <= SIZE_MAX -> width * 3
+            width * 2 <= SIZE_MAX -> width * 2
+            else -> SIZE_MAX
+        }
+        val newHeight = when {
+            height * 3 <= SIZE_MAX -> height * 3
+            height * 2 <= SIZE_MAX -> height * 2
+            else -> SIZE_MAX
+        }
+        return this.margin(
+            start = (newWidth - width) / 2,
+            end = newWidth - width - (newWidth - width) / 2,
+            top = (newHeight - width) / 2,
+            bottom = newHeight - width - (newHeight - width) / 2
+        )
+    }
 
 }
