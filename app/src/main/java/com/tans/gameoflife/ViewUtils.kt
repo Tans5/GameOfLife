@@ -1,6 +1,9 @@
 package com.tans.gameoflife
 
+import android.content.Context
+import android.graphics.Point
 import android.view.View
+import android.view.WindowManager
 import android.widget.CompoundButton
 import android.widget.SeekBar
 import androidx.core.view.ViewCompat
@@ -59,4 +62,11 @@ suspend fun CompoundButton.checkChangeCallToSuspend(): Boolean {
 
 suspend fun View.postInvalidateOnAnimation(delay: Long): Unit = suspendCoroutine { cont ->
     ViewCompat.postOnAnimationDelayed(this, { ViewCompat.postInvalidateOnAnimation(this); cont.resume(Unit) }, delay)
+}
+
+fun Context.getScreenSize(): Pair<Int, Int> {
+    val display = (getSystemService(Context.WINDOW_SERVICE) as WindowManager).defaultDisplay
+    val size = Point()
+    display.getSize(size)
+    return size.x to size.y
 }

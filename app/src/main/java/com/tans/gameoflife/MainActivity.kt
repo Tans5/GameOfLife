@@ -1,6 +1,7 @@
 package com.tans.gameoflife
 
 import android.content.Intent
+import com.tans.gameoflife.game.Size
 import com.tans.gameoflife.settings.GameLaunchType
 import com.tans.gameoflife.settings.globalSettingsState
 import kotlinx.android.synthetic.main.activity_main.*
@@ -13,13 +14,6 @@ class MainActivity : BaseActivity() {
 
     val state: MainActivityState = MainActivityState()
     override val layoutRes: Int = R.layout.activity_main
-
-    init {
-        activityLatestLifeStateChannel.asFlow()
-            .collectInCoroutine(this) {
-                println("Life: $it")
-            }
-    }
 
     override fun initData() {}
 
@@ -93,12 +87,12 @@ class MainActivity : BaseActivity() {
                     speed_tv.text = "Speed: ${it}ms"
                 }
 
-            globalSettingsState.showBorder.asFlow()
-                .distinctUntilChanged()
-                .collectInCoroutine(this) {
-                    state.isPaused.send(true)
-                    game_view.drawBorder = it
-                }
+//            globalSettingsState.showBorder.asFlow()
+//                .distinctUntilChanged()
+//                .collectInCoroutine(this) {
+//                    state.isPaused.send(true)
+//                    game_view.drawBorder = it
+//                }
         }
     }
 

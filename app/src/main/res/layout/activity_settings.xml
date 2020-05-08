@@ -136,6 +136,8 @@
                 android:layout_height="wrap_content"
                 app:constraint_referenced_ids="probability_result_tv, probability_sb, probability_tv"/>
 
+            <!--
+
             <TextView
                 android:id="@+id/show_border_tv"
                 android:layout_width="wrap_content"
@@ -154,6 +156,7 @@
                 app:layout_constraintStart_toEndOf="@id/show_border_tv"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="1"/>
+                -->
 
             <androidx.constraintlayout.widget.Barrier
                 android:id="@+id/vertical_left_barrier"

@@ -14,6 +14,9 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
 
+// Size in pixel.
+var gameViewSize: Size? = null
+
 class Application : Application(), CoroutineScope {
 
     override val coroutineContext: CoroutineContext = Dispatchers.Main + Job()
@@ -23,9 +26,12 @@ class Application : Application(), CoroutineScope {
 
         // Init Settings
         launch {
+            // TODO: Adjust this code.
+            val (width, _) = getScreenSize()
+            gameViewSize = Size(width, width)
             val (lifeModel, rule) = GollyCodeParser(DEFAULT_GOLLY_CODE[0])
             globalSettingsState.gameLaunchType.send(GameLaunchType.Common(initLifeModel = lifeModel, rule = rule, mapSize = lifeModel.mapSize, speed = 100))
-            globalSettingsState.showBorder.send(false)
+            // globalSettingsState.showBorder.send(false)
         }
     }
 

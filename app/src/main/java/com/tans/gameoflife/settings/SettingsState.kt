@@ -33,7 +33,10 @@ sealed class GameLaunchType(open val rule: Rule, open val mapSize: Size, open va
                         override val speed: Long) : GameLaunchType(rule, mapSize, speed) {
 
         override fun refresh(): LifeModel {
-            return initLifeModel.copy()
+            return LifeModel(
+                mapSize = initLifeModel.mapSize,
+                life = MutableList(initLifeModel.mapSize.width * initLifeModel.mapSize.height) { initLifeModel.life[it].copy() }
+            )
         }
 
         override fun toString(): String {
@@ -48,8 +51,9 @@ sealed class GameLaunchType(open val rule: Rule, open val mapSize: Size, open va
  * @speed: default 100ms, max: 1000, min: 100ms
  */
 data class SettingsState(
-    val gameLaunchType: BroadcastChannel<GameLaunchType> = BroadcastChannel(Channel.CONFLATED),
-    val showBorder: BroadcastChannel<Boolean> = BroadcastChannel(Channel.CONFLATED)
+    val gameLaunchType: BroadcastChannel<GameLaunchType> = BroadcastChannel(Channel.CONFLATED)
+    // ,
+    // val showBorder: BroadcastChannel<Boolean> = BroadcastChannel(Channel.CONFLATED)
 )
 
 val globalSettingsState = SettingsState()

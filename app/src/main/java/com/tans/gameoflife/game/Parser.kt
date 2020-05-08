@@ -1,5 +1,6 @@
 package com.tans.gameoflife.game
 
+import com.tans.gameoflife.gameViewSize
 import com.tans.gameoflife.settings.SIZE_MAX
 import kotlin.math.max
 
@@ -72,7 +73,7 @@ object GollyCodeParser : Parser {
     }
 
     fun parseToLineDurationData(lifeString: String): Pair<LineDurationData, String> {
-        val regex = "(([1-9])*([ob])).*".toRegex()
+        val regex = "(([1-9]*)([ob])).*".toRegex()
         val groups = regex.find(lifeString)?.groupValues
         if (groups?.size != 4) {
             throw GollyParseError
@@ -185,11 +186,12 @@ object GollyCodeParser : Parser {
             else -> SIZE_MAX
         }
         val bestSize = max(newWidth, newHeight)
+        val fixedSize = Size(bestSize, bestSize).fixSizeWithGameViewSize(gameViewSize)
         return this.margin(
-            start = (bestSize - width) / 2,
-            end = bestSize - width - (bestSize - width) / 2,
-            top = (bestSize - width) / 2,
-            bottom = bestSize - width - (bestSize - width) / 2
+            start = (fixedSize.width - width) / 2,
+            end = fixedSize.width - width - (fixedSize.width - width) / 2,
+            top = (fixedSize.height - height) / 2,
+            bottom = fixedSize.height - height - (fixedSize.height - height) / 2
         )
     }
 

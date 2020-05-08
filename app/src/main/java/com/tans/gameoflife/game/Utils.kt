@@ -1,6 +1,8 @@
 package com.tans.gameoflife.game
 
 import androidx.annotation.IntRange
+import com.tans.gameoflife.gameViewSize
+import kotlin.math.min
 import kotlin.random.Random
 import kotlin.random.nextInt
 
@@ -193,4 +195,16 @@ fun LifeModel.margin(start: Int, end: Int, top: Int, bottom: Int): LifeModel {
             }
         }
     )
+}
+
+fun Size.fixSizeWithGameViewSize(viewSize: Size?): Size {
+    return if (viewSize == null) {
+        this
+     } else {
+        val cellSize = min(viewSize.width / width, viewSize.height / height)
+        Size(
+            width = viewSize.width / cellSize,
+            height = viewSize.height / cellSize
+        )
+    }
 }

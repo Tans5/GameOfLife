@@ -2,6 +2,7 @@ package com.tans.gameoflife
 
 import android.view.View
 import com.tans.gameoflife.game.Size
+import com.tans.gameoflife.game.fixSizeWithGameViewSize
 import com.tans.gameoflife.settings.*
 import kotlinx.android.synthetic.main.activity_settings.*
 import kotlinx.coroutines.flow.*
@@ -42,13 +43,13 @@ class SettingsActivity : BaseActivity() {
                     }
                 }
 
-            show_border_switch.isChecked = globalSettingsState.showBorder.asFlow().first()
+//            show_border_switch.isChecked = globalSettingsState.showBorder.asFlow().first()
 
             map_size_sb.progressChange()
                 .collectInCoroutine(this) { progress ->
                     when (val oldLaunchType = globalSettingsState.gameLaunchType.asFlow().first()) {
                         is GameLaunchType.Random -> {
-                            val newLaunchType = oldLaunchType.copy(mapSize = progress.progressToSize())
+                            val newLaunchType = oldLaunchType.copy(mapSize = progress.progressToSize().fixSizeWithGameViewSize(gameViewSize))
                             globalSettingsState.gameLaunchType.send(newLaunchType)
                         }
                     }
@@ -80,9 +81,9 @@ class SettingsActivity : BaseActivity() {
                     }
                 }
 
-            show_border_switch.checkChanges()
-                .distinctUntilChanged()
-                .collectInCoroutine(this) { globalSettingsState.showBorder.send(it) }
+//            show_border_switch.checkChanges()
+//                .distinctUntilChanged()
+//                .collectInCoroutine(this) { globalSettingsState.showBorder.send(it) }
 
             globalSettingsState.gameLaunchType.asFlow()
                 .map { it.mapSize }

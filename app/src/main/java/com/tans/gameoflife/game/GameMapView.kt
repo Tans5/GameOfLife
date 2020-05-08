@@ -17,11 +17,13 @@ class GameMapView : View {
         ViewCompat.postInvalidateOnAnimation(this)
     }
 
-    var drawBorder: Boolean = false
-    set(value) {
-        field = value
-        ViewCompat.postInvalidateOnAnimation(this)
-    }
+    val drawBorder: Boolean = false
+//    set(value) {
+//        field = value
+//        ViewCompat.postInvalidateOnAnimation(this)
+//    }
+
+    var sizeChangeListener: ((width: Int, height: Int) -> Unit)? = null
 
     val borderSize: Int = 1
 
@@ -67,10 +69,10 @@ class GameMapView : View {
             && mapSize != null
             && life != null) {
             val mapScreenWidth = measuredWidth.let { screenWidth ->
-                screenWidth + mapSize.width - (screenWidth - borderSize) % mapSize.width
+                screenWidth  - (screenWidth - borderSize) % mapSize.width
             }
             val mapScreenHeight = measuredHeight.let { screenHeight ->
-                screenHeight + mapSize.height - (screenHeight - borderSize) % mapSize.height
+                screenHeight  - (screenHeight - borderSize) % mapSize.height
             }
             val cellSize = min((mapScreenWidth - borderSize) / mapSize.width, (mapScreenHeight - borderSize) / mapSize.height) - borderSize
             if (cellSize >= 1) {
@@ -109,6 +111,12 @@ class GameMapView : View {
             }
         }
 
+    }
+
+    override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
+        super.onSizeChanged(w, h, oldw, oldh)
+        invalidate()
+        sizeChangeListener?.invoke(w, h)
     }
 
 }
