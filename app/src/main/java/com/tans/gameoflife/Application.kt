@@ -29,7 +29,7 @@ class Application : Application(), CoroutineScope {
             // TODO: Adjust this code.
             val (width, _) = getScreenSize()
             gameViewSize = Size(width, width)
-            val (lifeModel, rule) = GollyCodeParser(DEFAULT_GOLLY_CODE[0])
+            val (lifeModel, rule) = GollyCodeParser(DEFAULT_GOLLY_CODE[1])
             globalSettingsState.gameLaunchType.send(GameLaunchType.Common(initLifeModel = lifeModel, rule = rule, mapSize = lifeModel.mapSize, speed = 100))
             // globalSettingsState.showBorder.send(false)
         }

@@ -13,7 +13,15 @@ typealias Parser = (code: String) -> ParseResult
 object GollyParseError : Throwable("Parse code occur error!")
 
 val DEFAULT_GOLLY_CODE = listOf<String>(
-    "x = 365, y = 1, rule = B3/S23\n365o!"
+    "x = 365, y = 1, rule = B3/S23\n365o!",
+    "x = 86, y = 86, rule = B3/S23\n" +
+            "41b2o\$41b2o4\$41bo\$40b3o\$39bo3bo\$38bob3obo\$39b5o14\$42b3o\$41bo3bo\$40bo5b\n" +
+            "o\$40b2obob2o3\$43bo\$42bobo\$42bobo\$43bo2\$43b2o\$43b2o3\$77bo\$25b2o49bobo\$\n" +
+            "24bobo32b2o15b2obo\$8bo14bo6b2o2b2o23bobo14b2ob2o3b2o\$7bobo13bo2bo2bo2b\n" +
+            "ob2o18b2o6bo13b2obo4b2o\$2o4bob2o13bo6b2o18b2obo2bo2bo2bo13bobo\$2o3b2ob\n" +
+            "2o14bobo23b2o2b2o6bo14bo\$6bob2o15b2o32bobo\$7bobo49b2o\$8bo3\$41b2o\$41b2o\n" +
+            "2\$42bo\$41bobo\$41bobo\$42bo3\$39b2obob2o\$39bo5bo\$40bo3bo\$41b3o14\$42b5o\$\n" +
+            "41bob3obo\$42bo3bo\$43b3o\$44bo4\$43b2o\$43b2o!\n"
 )
 /**
  * Code demo:
@@ -25,9 +33,9 @@ object GollyCodeParser : Parser {
 
     override fun invoke(code: String): ParseResult {
         try {
-            val result = code.split('\n')
+            val result = code.split('\n', limit = 2)
             val sizeRuleString = result[0]
-            val lifeString = result[1]
+            val lifeString = result[1].trim().replace("\n", "")
             val sizeRuleKeyValue = sizeRuleString.trim().split(",")
                 .map {
                     val keyValue = it.split("=")
@@ -93,11 +101,32 @@ object GollyCodeParser : Parser {
     }
 
     fun parseToSquareData(width: Int, height: Int, lifeString: String): SquareData {
-        val iterator = lifeString.split("\$").iterator()
+        val iterator = lifeString.split("$").iterator()
         var lines: List<LineData> = emptyList()
+        val regex1 = "(([1-9]*[b|o])*)([1-9]+)($|!)".toRegex()
+        val regex2 = "([1-9]+)($|!)".toRegex()
         while (iterator.hasNext()) {
-            val (line, isFinished) = parseToLineData(width, iterator.next())
-            lines += line
+            val lifeStringSub = iterator.next()
+            val isFinished = if (!regex2.matches(lifeStringSub)) {
+                val (line, isFinished) = parseToLineData(width, lifeStringSub)
+                lines += line
+                isFinished
+            } else {
+                lifeStringSub.contains("!")
+            }
+            val result = regex1.find(lifeStringSub)
+            if (result != null) {
+                val emptyLine = result.groupValues[3].toInt().let {
+                    if (result.groupValues[1].isEmpty()) {
+                        it
+                    } else {
+                        it - 1
+                    }
+                }
+                repeat(emptyLine) {
+                    lines += emptyLineData(width)
+                }
+            }
             if (isFinished) break
         }
         when (height - lines.size) {
@@ -115,11 +144,16 @@ object GollyCodeParser : Parser {
         var isLineFinish = false
         var remainString = lifeString
         var durations: List<LineDurationData> = emptyList()
+        val regexLineFinish = "[1-9]+$".toRegex()
+        val regexFinish = "[1-9]+!".toRegex()
         while (!isLineFinish && !isFinish) {
             val (duration, remain) = parseToLineDurationData(remainString)
-            if (remain.trim().isEmpty()) {
+            if (remain.trim().isEmpty() || regexLineFinish.matches(remain.trim())) {
                 isLineFinish = true
             } else if (remain.trim() == "!") {
+                isFinish = true
+            } else if (regexFinish.matches(remain.trim())) {
+                isLineFinish = true
                 isFinish = true
             }
             remainString = remain
