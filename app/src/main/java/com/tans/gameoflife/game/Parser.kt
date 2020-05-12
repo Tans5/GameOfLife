@@ -21,7 +21,23 @@ val DEFAULT_GOLLY_CODE = listOf<String>(
             "ob2o18b2o6bo13b2obo4b2o\$2o4bob2o13bo6b2o18b2obo2bo2bo2bo13bobo\$2o3b2ob\n" +
             "2o14bobo23b2o2b2o6bo14bo\$6bob2o15b2o32bobo\$7bobo49b2o\$8bo3\$41b2o\$41b2o\n" +
             "2\$42bo\$41bobo\$41bobo\$42bo3\$39b2obob2o\$39bo5bo\$40bo3bo\$41b3o14\$42b5o\$\n" +
-            "41bob3obo\$42bo3bo\$43b3o\$44bo4\$43b2o\$43b2o!\n"
+            "41bob3obo\$42bo3bo\$43b3o\$44bo4\$43b2o\$43b2o!\n",
+    "x = 90, y = 90, rule = B3/S23\n" +
+            "2\$43b2o\$43b2o4\$43bo\$42b3o\$41bo3bo\$40bob3obo\$41b5o14\$44b3o\$43bo3bo\$42bo\n" +
+            "5bo\$42b2obob2o3\$45bo\$44bobo\$44bobo\$45bo2\$45b2o\$45b2o3\$79bo\$27b2o49bobo\n" +
+            "\$26bobo32b2o15b2obo\$10bo14bo6b2o2b2o23bobo14b2ob2o3b2o\$9bobo13bo2bo2bo\n" +
+            "2bob2o18b2o6bo13b2obo4b2o\$2b2o4bob2o13bo6b2o18b2obo2bo2bo2bo13bobo\$2b\n" +
+            "2o3b2ob2o14bobo23b2o2b2o6bo14bo\$8bob2o15b2o32bobo\$9bobo49b2o\$10bo3\$43b\n" +
+            "2o\$43b2o2\$44bo\$43bobo\$43bobo\$44bo3\$41b2obob2o\$41bo5bo\$42bo3bo\$43b3o14\$\n" +
+            "44b5o\$43bob3obo\$44bo3bo\$45b3o\$46bo4\$45b2o\$45b2o!",
+    "x = 11, y = 11, rule = B3/S23\n" +
+            "2b4o\$bo4bob2o\$bo4bo3bo\$4b2o4bo\$b2o4bo2bo\$o2bo3bo2bo\$o2bo4b2o\$o4b2o\$o3b\n" +
+            "o4bo\$b2obo4bo\$5b4o!",
+    "x = 31, y = 31, rule = B3/S23\n" +
+            "3b2o21b2o\$3b2o21b2o2\$2o27b2o\$2o5bo2b3o5b3o2bo5b2o\$6b3ob3o5b3ob3o\$5bo2bo13bo2b\n" +
+            "o\$4b2o19b2o\$5b2o17b2o2\$4b2o19b2o\$4b2o19b2o\$4b2o19b2o6\$4b2o19b2o\$4b2o19b2o\$4b\n" +
+            "2o19b2o2\$5b2o17b2o\$4b2o19b2o\$5bo2bo13bo2bo\$6b3ob3o5b3ob3o\$2o5bo2b3o5b3o2bo5b\n" +
+            "2o\$2o27b2o2\$3b2o21b2o\$3b2o21b2o!"
 )
 /**
  * Code demo:
@@ -81,7 +97,7 @@ object GollyCodeParser : Parser {
     }
 
     fun parseToLineDurationData(lifeString: String): Pair<LineDurationData, String> {
-        val regex = "(([1-9]*)([ob])).*".toRegex()
+        val regex = "(([0-9]*)([ob])).*".toRegex()
         val groups = regex.find(lifeString)?.groupValues
         if (groups?.size != 4) {
             throw GollyParseError
@@ -101,10 +117,10 @@ object GollyCodeParser : Parser {
     }
 
     fun parseToSquareData(width: Int, height: Int, lifeString: String): SquareData {
-        val iterator = lifeString.split("$").iterator()
+        val iterator = lifeString.split("$").filter { it.isNotBlank() }.iterator()
         var lines: List<LineData> = emptyList()
-        val regex1 = "(([1-9]*[b|o])*)([1-9]+)($|!)".toRegex()
-        val regex2 = "([1-9]+)($|!)".toRegex()
+        val regex1 = "(([0-9]*[b|o])*)([0-9]+)($|!)".toRegex()
+        val regex2 = "([0-9]+)($|!)".toRegex()
         while (iterator.hasNext()) {
             val lifeStringSub = iterator.next()
             val isFinished = if (!regex2.matches(lifeStringSub)) {
@@ -116,13 +132,7 @@ object GollyCodeParser : Parser {
             }
             val result = regex1.find(lifeStringSub)
             if (result != null) {
-                val emptyLine = result.groupValues[3].toInt().let {
-                    if (result.groupValues[1].isEmpty()) {
-                        it
-                    } else {
-                        it - 1
-                    }
-                }
+                val emptyLine = result.groupValues[3].toInt() - 1
                 repeat(emptyLine) {
                     lines += emptyLineData(width)
                 }
@@ -144,8 +154,8 @@ object GollyCodeParser : Parser {
         var isLineFinish = false
         var remainString = lifeString
         var durations: List<LineDurationData> = emptyList()
-        val regexLineFinish = "[1-9]+$".toRegex()
-        val regexFinish = "[1-9]+!".toRegex()
+        val regexLineFinish = "[0-9]+$".toRegex()
+        val regexFinish = "[0-9]+!".toRegex()
         while (!isLineFinish && !isFinish) {
             val (duration, remain) = parseToLineDurationData(remainString)
             if (remain.trim().isEmpty() || regexLineFinish.matches(remain.trim())) {
